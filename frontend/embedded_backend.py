@@ -1,9 +1,9 @@
 """Run the FastAPI backend inside the Streamlit app, for one-app hosting
 (Streamlit Community Cloud).
 
-It only switches on when the setting RUN_EMBEDDED_BACKEND = "1" is present
-(in the hosting site's Secrets). On your laptop nothing changes: you still
-start the backend yourself in its own terminal.
+It switches on when RUN_EMBEDDED_BACKEND = "1" is in the hosting site's Secrets,
+or automatically on Streamlit Community Cloud (apps there run from /mount/src).
+On your laptop nothing changes: you still start the backend yourself.
 """
 
 import contextlib
@@ -65,9 +65,14 @@ def _start_backend() -> bool:
     return False
 
 
+def _wanted() -> bool:
+    flag = os.getenv("RUN_EMBEDDED_BACKEND", "").strip().strip('"').lower()
+    return flag in {"1", "true", "yes"} or Path("/mount/src").exists()
+
+
 def start_if_needed() -> None:
     _secrets_to_env()
-    if os.getenv("RUN_EMBEDDED_BACKEND") != "1":
+    if not _wanted():
         return
     if not _start_backend():
         _start_backend.clear()
