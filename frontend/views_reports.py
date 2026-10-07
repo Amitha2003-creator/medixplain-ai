@@ -3,6 +3,7 @@
 import streamlit as st
 
 from api import api, file_tuple, show_disclaimer
+from ui import status_counts, status_table
 
 OPTIONS = {
     "analysis": ("🧠 Analyze Report", "/analyze-report", "analysis"),
@@ -17,14 +18,9 @@ OPTIONS = {
 def _show_lab_values(labs: list[dict]):
     if not labs:
         st.info("No lab values with a printed reference range were found.")
-    for item in labs:
-        badge = {"HIGH": st.error, "LOW": st.warning}.get(item["status"], st.success)
-        with st.container(border=True):
-            st.markdown(f"**🧪 {item['test']}**")
-            st.write(f"Result: **{item['value_text']} {item['unit']}** · "
-                     f"Reference range: {item['reference_range']}")
-            badge(item["status"])
-
+        return
+    status_counts(labs)
+    status_table(labs)
 
 def report_page(language_code: str):
     st.header("📄 Understand a Medical Report")

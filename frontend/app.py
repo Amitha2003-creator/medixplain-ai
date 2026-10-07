@@ -19,7 +19,9 @@ from views_admin import (  # noqa: E402
     knowledge_page,
     users_page,
 )
+from ui import inject_css  # noqa: E402
 from views_history import my_history_page  # noqa: E402
+from views_home import home_page  # noqa: E402
 from views_patients import my_profile_page, patients_page  # noqa: E402
 from views_reports import image_page, report_page  # noqa: E402
 
@@ -82,7 +84,8 @@ def login_screen():
 # =========================================================
 
 PAGES = {
-        "patient": {
+    "patient": {
+        "🏠 Home": None,  # needs the user, handled below
         "📄 Understand a Report": report_page,
         "🩻 Medical Images": image_page,
         "📊 My Reports & Trends": None,  # needs patient_id, handled below
@@ -97,8 +100,8 @@ PAGES = {
         "🛡️ Users": users_page,
         "🔗 Assignments": assignments_page,
         "👥 Patients": None,
-        "📜 Activity Log": activity_page,
         "📚 Knowledge Base": knowledge_page,
+        "📜 Activity Log": activity_page,
         "📄 Understand a Report": report_page,
         "🩻 Medical Images": image_page,
     },
@@ -113,7 +116,7 @@ def main_app():
         st.markdown("### 🩺 MediXplain AI")
         st.write(f"**{user['name']}**")
         st.caption(f"{user['email']} · {role.title()}")
-        page = st.radio("Menu", list(PAGES[role]), label_visibility="collapsed")
+        page = st.radio("Menu", list(PAGES[role]), label_visibility="collapsed", key="nav")
         language_code = LANGUAGES[st.selectbox("🌐 Language", list(LANGUAGES))]
         st.divider()
         if st.button("🚪 Log out", width="stretch"):
@@ -122,17 +125,21 @@ def main_app():
 
     st.caption(DISCLAIMER)
 
-    if page == "👤 My Profile & Timeline":
+    if page == "🏠 Home":
+        home_page(user)
+    elif page == "👤 My Profile & Timeline":
         my_profile_page(user.get("patient_id"))
     elif page == "📊 My Reports & Trends":
         my_history_page(user.get("patient_id"), language_code)
     elif page in ("👥 My Patients", "👥 Patients"):
-        patients_page(role, language_code)    
+        patients_page(role, language_code)
     elif page in ("📄 Understand a Report", "🩻 Medical Images"):
         PAGES[role][page](language_code)
     else:
         PAGES[role][page]()
 
+
+inject_css()
 
 if st.session_state.get("token") and st.session_state.get("user"):
     main_app()

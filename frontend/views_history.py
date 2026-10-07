@@ -9,6 +9,7 @@ import pandas as pd
 import streamlit as st
 
 from api import api, api_file, file_tuple
+from ui import empty_state, status_table
 
 SERIES_COLOR = "#2a78d6"   # one series per chart, so one colour
 RANGE_COLOR = "#8a8986"    # neutral grey for the reference range
@@ -154,14 +155,7 @@ def _show_save_results(results: list[dict]):
 
 
 def _lab_table(labs: list[dict]):
-    if not labs:
-        return
-    st.dataframe(
-        [{"Test": lab["test"], "Result": f"{lab['value_text']} {lab['unit']}".strip(),
-          "Reference range": lab["reference_range"],
-          "Status": STATUS_ICON.get(lab["status"], lab["status"])} for lab in labs],
-        hide_index=True, width="stretch",
-    )
+    status_table(labs)
 
 
 # ---------------------------------------------------------------------------
@@ -180,8 +174,9 @@ def _label(report: dict) -> str:
 def _reports_tab(patient_id: int):
     reports = _get_reports(patient_id)
     if not reports:
-        st.info("No saved reports yet. Use the 'Save a report' tab.")
-        return
+           empty_state("📂", "No saved reports yet",
+                       "Open the 'Save a report' tab and upload one or more lab reports.")
+           return
 
     st.dataframe(
         [{"Date": r["report_date"], "Title": r["title"], "Lab values": r["values_count"],
