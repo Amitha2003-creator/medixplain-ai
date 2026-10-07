@@ -3,7 +3,7 @@
 import streamlit as st
 
 from api import api
-from ui import empty_state, status_table
+from ui import empty_state, hero, status_table
 
 REPORTS_PAGE = "📊 My Reports & Trends"
 UNDERSTAND_PAGE = "📄 Understand a Report"
@@ -17,7 +17,9 @@ def _go(page: str):
 
 def home_page(user: dict):
     first_name = (user.get("name") or "there").split()[0]
-    st.header(f"👋 Welcome, {first_name}")
+    hero(f"Welcome back, {first_name} 👋",
+         "Here is a quick look at your health reports. Values are compared with the reference "
+         "range printed on each report.", badge="🏠 Your dashboard")
 
     patient_id = user.get("patient_id")
     if not patient_id:

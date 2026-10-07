@@ -19,7 +19,7 @@ from views_admin import (  # noqa: E402
     knowledge_page,
     users_page,
 )
-from ui import inject_css  # noqa: E402
+from ui import feature_card, hero, inject_css  # noqa: E402
 from views_history import my_history_page  # noqa: E402
 from views_home import home_page  # noqa: E402
 from views_patients import my_profile_page, patients_page  # noqa: E402
@@ -45,38 +45,62 @@ def _start_session(result: dict):
 
 
 def login_screen():
-    st.title("🩺 MediXplain AI")
-    st.subheader("Understand your medical reports in simple language")
-    st.caption(DISCLAIMER)
+    hero("Understand your medical reports in simple language",
+         "Upload a lab report and get a clear explanation, flagged values, questions for your "
+         "doctor and trends over time, in English or Malayalam.",
+         badge="🩺 MediXplain AI · Educational health assistant")
 
-    tab_login, tab_register = st.tabs(["🔑 Log in", "📝 Create patient account"])
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        feature_card("🧪", "Lab values", "High, low and normal values checked against your report.", "blue")
+    with c2:
+        feature_card("🧠", "Simple explanations", "Medical words turned into plain language.", "teal")
+    with c3:
+        feature_card("📈", "Trends", "Compare reports and see how values change.", "violet")
+    with c4:
+        feature_card("🎤", "Voice and Malayalam", "Ask questions by voice in English or Malayalam.", "amber")
 
-    with tab_login:
-        with st.form("login"):
-            email = st.text_input("Email")
-            password = st.text_input("Password", type="password")
-            if st.form_submit_button("Log in", type="primary"):
-                result = api("POST", "/login", auth=False,
-                             json={"email": email, "password": password})
-                if result:
-                    _start_session(result)
+    st.write("")
+    left, right = st.columns([3, 2], gap="large")
+    with right:
+        with st.container(border=True):
+            tab_login, tab_register = st.tabs(["🔑 Log in", "📝 Create patient account"])
 
-    with tab_register:
-        st.caption("Doctor and admin accounts are created by the clinic admin.")
-        with st.form("register"):
-            name = st.text_input("Full name")
-            email = st.text_input("Email", key="reg_email")
-            password = st.text_input("Password (at least 8 characters)", type="password",
-                                     key="reg_password")
-            confirm = st.text_input("Confirm password", type="password")
-            if st.form_submit_button("Create account", type="primary"):
-                if password != confirm:
-                    st.error("The passwords do not match.")
-                else:
-                    result = api("POST", "/register", auth=False,
-                                 json={"name": name, "email": email, "password": password})
-                    if result:
-                        _start_session(result)
+            with tab_login:
+                with st.form("login"):
+                    email = st.text_input("Email")
+                    password = st.text_input("Password", type="password")
+                    if st.form_submit_button("Log in", type="primary", width="stretch"):
+                        result = api("POST", "/login", auth=False,
+                                     json={"email": email, "password": password})
+                        if result:
+                            _start_session(result)
+
+            with tab_register:
+                st.caption("Doctor and admin accounts are created by the clinic admin.")
+                with st.form("register"):
+                    name = st.text_input("Full name")
+                    email = st.text_input("Email", key="reg_email")
+                    password = st.text_input("Password (at least 8 characters)", type="password",
+                                             key="reg_password")
+                    confirm = st.text_input("Confirm password", type="password")
+                    if st.form_submit_button("Create account", type="primary", width="stretch"):
+                        if password != confirm:
+                            st.error("The passwords do not match.")
+                        else:
+                            result = api("POST", "/register", auth=False,
+                                         json={"name": name, "email": email, "password": password})
+                            if result:
+                                _start_session(result)
+    with left:
+        st.markdown("### Why MediXplain?")
+        st.markdown(
+            "- **Private by design:** report files are read in memory and never stored.\n"
+            "- **Trusted sources:** answers cite MedlinePlus from the U.S. National Library of Medicine.\n"
+            "- **For patients, doctors and clinics:** separate dashboards and access for each role.\n"
+            "- **Ready for the visit:** download a PDF summary with questions for your doctor."
+        )
+        st.caption(DISCLAIMER)
 
 
 # =========================================================
@@ -113,7 +137,7 @@ def main_app():
     role = user["role"]
 
     with st.sidebar:
-        st.markdown("### 🩺 MediXplain AI")
+        st.markdown('<div class="mx-brand">🩺 MediXplain AI</div>', unsafe_allow_html=True)
         st.write(f"**{user['name']}**")
         st.caption(f"{user['email']} · {role.title()}")
         page = st.radio("Menu", list(PAGES[role]), label_visibility="collapsed", key="nav")
