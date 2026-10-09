@@ -5,6 +5,7 @@ import streamlit as st
 from api import api
 from ui import empty_state, hero, status_table
 
+UPLOAD_PAGE = "📤 Upload & Explain"
 REPORTS_PAGE = "📊 My Reports & Trends"
 UNDERSTAND_PAGE = "📄 Understand a Report"
 PROFILE_PAGE = "👤 My Profile & Timeline"
@@ -34,11 +35,8 @@ def home_page(user: dict):
             "Start in three steps: 1) upload a lab report, 2) read the simple explanation, "
             "3) ask questions about it. Your files are read in memory and not stored.",
         )
-        c1, c2 = st.columns(2)
-        c1.button("💾 Save my first report", type="primary", width="stretch",
-                  on_click=_go, args=(REPORTS_PAGE,))
-        c2.button("📄 Just explain a report", width="stretch",
-                  on_click=_go, args=(UNDERSTAND_PAGE,))
+        st.button("📤 Upload & explain my first report", type="primary", width="stretch",
+                  on_click=_go, args=(UPLOAD_PAGE,))
         return
 
     latest = reports[0]  # newest first
@@ -73,9 +71,9 @@ def home_page(user: dict):
     st.divider()
     st.markdown("**What would you like to do?**")
     c1, c2, c3 = st.columns(3)
-    c1.button("💾 Save or compare reports", width="stretch", type="primary",
+    c1.button("📤 Upload & explain a report", width="stretch", type="primary",
+              on_click=_go, args=(UPLOAD_PAGE,))
+    c2.button("📊 Compare reports & trends", width="stretch",
               on_click=_go, args=(REPORTS_PAGE,))
-    c2.button("📄 Explain a new report", width="stretch",
-              on_click=_go, args=(UNDERSTAND_PAGE,))
     c3.button("👤 My profile & timeline", width="stretch",
               on_click=_go, args=(PROFILE_PAGE,))
